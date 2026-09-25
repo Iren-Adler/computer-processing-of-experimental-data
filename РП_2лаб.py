@@ -6,16 +6,15 @@ y = [16, 25, 30, 39, 45]
 N = len(x)        # количество наблюдений
 m = len(x[0])     # количество признаков
 
-print("=" * 70)
-print("ТЕСТОВЫЙ ПРИМЕР (БЕЗ СВОБОДНОГО ЧЛЕНА)")
-print("=" * 70)
+
+print("Тестовый пример (БЕЗ СВОБОДНОГО ЧЛЕНА)")
 print("Исходная матрица X (без свободного члена):")
 for i in range(N):
     print(f"   {x[i]}  → y = {y[i]}")
 print("=" * 70)
 
-# 1. НЕ добавляем столбец единиц! Используем исходную матрицу X
-X = x  # просто переименовываем для удобства
+
+X = x
 
 print(f"\n1. Матрица X (без свободного члена):")
 for i in range(N):
@@ -66,8 +65,8 @@ def inverse_matrix(A):
 
     return [row[n:] for row in augmented]
 
-# 3. Вычисление МНК-оценки (без свободного члена)
-print(f"\n2. Вычисление МНК-оценки параметров (без свободного члена)...")
+# 3. Вычисление МНК-оценки
+print(f"\n2. Вычисление МНК-оценки параметров")
 
 XT = transpose_matrix(X)
 print(f"\n   X^T (транспонированная):")
@@ -95,7 +94,7 @@ print(f"   {[round(x[0], 2) for x in XTy]}")
 
 a = multiply_matrices(XTX_inv, XTy)
 
-print(f"\n3. МНК-оценки параметров регрессии (БЕЗ свободного члена):")
+print(f"\n3. МНК-оценки параметров регрессии:")
 print(f"   y = a1*x1 + a2*x2")
 print(f"   a1 (для x1) = {a[0][0]:.6f}")
 print(f"   a2 (для x2) = {a[1][0]:.6f}")
@@ -104,13 +103,13 @@ print(f"   a2 (для x2) = {a[1][0]:.6f}")
 y_hat = []
 for i in range(N):
     s = 0.0
-    for j in range(m):  # только m признаков, без свободного члена
+    for j in range(m):
         s += a[j][0] * X[i][j]
     y_hat.append(s)
 
 e = [y[i] - y_hat[i] for i in range(N)]
 
-# Проверка средних (для модели без свободного члена средние МОГУТ не совпадать!)
+# Проверка средних 
 y_mean = sum(y) / N
 y_hat_mean = sum(y_hat) / N
 
@@ -219,8 +218,7 @@ print(f"\n   После фильтрации по |r|>0.3 осталось {len(
 MIN_FEATURES = 2
 
 if len(x_indices_corr) < MIN_FEATURES:
-    print(f"\n3. Признаков осталось слишком мало ({len(x_indices_corr)} < {MIN_FEATURES})")
-    print(f"   Используем альтернативный критерий - признаки с H1")
+    print(f"\n3. Признаков мало ({len(x_indices_corr)} < {MIN_FEATURES})")
 
     x_indices = []
     for j in range(p):
@@ -341,7 +339,7 @@ def inverse_matrix(A):
 
 
 # 7. Вычисление МНК-оценки
-print(f"\n6. Вычисление МНК-оценки параметров...")
+print(f"\n6. Вычисление МНК-оценки параметров")
 
 XT = transpose_matrix(X)
 XTX = multiply_matrices(XT, X)
