@@ -1,46 +1,30 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 Лабораторная работа: прогнозирование временного ряда
 ВАРИАНТ 21
-
-Все расчеты выполняются в main, без использования функций
-Графики сохраняются в папку lab_results
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-# ============================================================
-# ДАННЫЕ ДЛЯ 21 ВАРИАНТА (продажи за 30 недель)
-# ============================================================
 X = np.array(
     [43, 44, 45, 42, 47, 48, 49, 53, 56, 60, 66, 72, 73, 77, 81, 78, 79, 87, 94, 93, 84, 92, 100, 106, 110, 108, 111,
      103, 109, 121], dtype=float)
 N = len(X)  # N = 30
 weeks = np.arange(1, N + 1)  # t = 1, 2, ..., 30
 
-# Создаем директорию для графиков
+
 out_dir = Path('../lab_results')
 out_dir.mkdir(exist_ok=True)
 
-print("=" * 80)
-print("ЛАБОРАТОРНАЯ РАБОТА: ПРОГНОЗИРОВАНИЕ ВРЕМЕННЫХ РЯДОВ")
-print("Вариант 21 - данные продаж за 30 недель")
-print("=" * 80)
 
-# ============================================================
-# ПУНКТ 1: Оценки математического ожидания и дисперсии
-# ============================================================
-print("\n" + "=" * 60)
-print("ПУНКТ 1. Оценки математического ожидания и дисперсии")
-print("=" * 60)
+print("Прогнозирование временных рядов")
+print("Вариант 21 - данные продаж за 30 недель")
+print("Оценки математического ожидания и дисперсии")
 
 # Оценка математического ожидания (среднее арифметическое)
 mean_X = np.sum(X) / N
-print(f"  Оценка математического ожидания: M[x] = {mean_X:.4f}")
+print(f"M[x] = {mean_X:.4f}")
 
 # Оценка дисперсии (несмещенная) - формула: s^2 = 1/(n-1) * Σ(x_i - x̄)^2
 var_X = np.sum((X - mean_X) ** 2) / (N - 1)
@@ -57,14 +41,13 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(out_dir / '01_original_series.png', dpi=150)
 plt.show()
-print(f"  График сохранен: {out_dir / '01_original_series.png'}")
 
-# ============================================================
-# ПУНКТ 2: Постоянная модель (n=0) для прогнозирования
-# ============================================================
+
+# Постоянная модель (n=0) для прогнозирования
+
 print("\n" + "=" * 60)
 print("ПУНКТ 2. Постоянная модель (n=0)")
-print("=" * 60)
+
 
 # Параметры сглаживания
 alpha_values = [0.1, 0.3]
@@ -72,15 +55,11 @@ beta = lambda a: 1 - a  # β = 1 - α
 
 # Начальное значение S0[1] как среднее арифметическое пяти первых значений
 S0_const = np.mean(X[:5])
-print(f"  Начальное значение S0[1] = {S0_const:.4f} (среднее первых 5 значений)")
+print(f"S0[1] = {S0_const:.4f}")
 
-# Словари для хранения результатов для обоих α
 const_results = {}
 
 for alpha in alpha_values:
-    print(f"\n  --- α = {alpha} ---")
-
-    # Инициализация
     S = np.zeros(N + 1)  # S[1]_t, t = 0..N
     S[0] = S0_const
 
@@ -105,11 +84,11 @@ for alpha in alpha_values:
         'var_error': var_error_const, 'future_pred': future_pred_const
     }
 
-    print(f"    Дисперсия ошибки: s² = {var_error_const:.4f}")
-    print(f"    Прогноз на 31-ю неделю: x_hat_31 = {future_pred_const:.2f}")
+    print(f"Дисперсия ошибки: s² = {var_error_const:.4f}")
+    print(f"Прогноз на 31-ю неделю: x_hat_31 = {future_pred_const:.2f}")
 
-    # Таблица результатов для вывода (первые 10 и последние 10 строк)
-    print("\n    Таблица результатов (первые 10 недель):")
+    # Таблица результатов
+    print("\nТаблица результатов (первые 10 недель):")
     print("    t      x_t    x_hat_t    error     S_t[1]")
     for t in range(1, 11):
         print(f"    {t:2d}   {X[t - 1]:6.2f}   {pred[t - 1]:8.2f}   {error[t - 1]:8.2f}   {S[t]:8.2f}")
@@ -119,7 +98,6 @@ for alpha in alpha_values:
         if t <= N:
             print(f"    {t:2d}   {X[t - 1]:6.2f}   {pred[t - 1]:8.2f}   {error[t - 1]:8.2f}   {S[t]:8.2f}")
 
-    # Сохранение таблиц в CSV
     np.savetxt(out_dir / f'constant_alpha_{alpha}_results.csv',
                np.column_stack([weeks, X, pred, error, S[1:]]),
                delimiter=',', header='t,x_t,x_hat_t,error,S_t[1]', comments='')
@@ -137,11 +115,10 @@ for alpha in alpha_values:
     plt.tight_layout()
     plt.savefig(out_dir / f'02_constant_model_alpha_{alpha}.png', dpi=150)
     plt.show()
-    print(f"    График сохранен: {out_dir / f'02_constant_model_alpha_{alpha}.png'}")
 
-# ============================================================
-# ПУНКТ 3: Начальные коэффициенты линейной модели по МНК
-# ============================================================
+
+#Начальные коэффициенты линейной модели по МНК
+
 print("\n" + "=" * 60)
 print("ПУНКТ 3. Начальные коэффициенты линейной модели (МНК)")
 print("=" * 60)
@@ -182,14 +159,12 @@ plt.savefig(out_dir / '03_linear_regression_init.png', dpi=150)
 plt.show()
 print(f"  График сохранен: {out_dir / '03_linear_regression_init.png'}")
 
-# ============================================================
-# ПУНКТ 4: Многократное экспоненциальное сглаживание (S[1] и S[2])
-# ============================================================
-print("\n" + "=" * 60)
-print("ПУНКТ 4. Многократное экспоненциальное сглаживание")
-print("=" * 60)
 
-# Словари для хранения результатов сглаживания
+
+print("Многократное экспоненциальное сглаживание")
+
+
+
 smooth_results = {}
 
 for alpha in alpha_values:
@@ -205,9 +180,9 @@ for alpha in alpha_values:
     S1[0] = A0_init - (beta_val / alpha) * A1_init
     S2[0] = A0_init - 2 * (beta_val / alpha) * A1_init
 
-    print(f"    Начальные значения:")
-    print(f"      S0[1] = {S1[0]:.4f}")
-    print(f"      S0[2] = {S2[0]:.4f}")
+    print(f"Начальные значения:")
+    print(f"S0[1] = {S1[0]:.4f}")
+    print(f"S0[2] = {S2[0]:.4f}")
 
     # Рекуррентное сглаживание
     # S_t[1] = α·x_t + β·S_{t-1}[1]
@@ -245,11 +220,8 @@ for alpha in alpha_values:
     plt.tight_layout()
     plt.savefig(out_dir / f'04_smoothing_alpha_{alpha}.png', dpi=150)
     plt.show()
-    print(f"    Графики сохранены: {out_dir / f'04_smoothing_alpha_{alpha}.png'}")
 
-# ============================================================
 # ПУНКТ 5: Линейная модель (n=1) для прогнозирования (m=1)
-# ============================================================
 print("\n" + "=" * 60)
 print("ПУНКТ 5. Линейная модель (n=1) для прогнозирования с m=1")
 print("=" * 60)
@@ -311,14 +283,13 @@ for alpha in alpha_values:
     print(f"    Дисперсия ошибки: s² = {var_error_m1:.4f}")
     print(f"    Прогноз на 31-ю неделю: x_hat_31 = {future_pred_m1:.2f}")
 
-    # Таблица результатов
     print("\n    Таблица результатов (первые 10 недель):")
     print("    t      x_t    x_hat_t    error     A0(t-1)   A1(t-1)")
     for t in range(1, 11):
         print(
             f"    {t:2d}   {X[t - 1]:6.2f}   {pred_m1[t - 1]:8.2f}   {error_m1[t - 1]:8.2f}   {A0_coef[t - 1]:8.2f}   {A1_coef[t - 1]:8.2f}")
 
-    # Сохранение таблицы
+
     np.savetxt(out_dir / f'linear_m1_alpha_{alpha}_results.csv',
                np.column_stack([weeks, X, pred_m1, error_m1, A0_coef[1:], A1_coef[1:]]),
                delimiter=',', header='t,x_t,x_hat_t,error,A0_t,A1_t', comments='')
@@ -336,14 +307,13 @@ for alpha in alpha_values:
     plt.tight_layout()
     plt.savefig(out_dir / f'05_linear_m1_alpha_{alpha}.png', dpi=150)
     plt.show()
-    print(f"    График сохранен: {out_dir / f'05_linear_m1_alpha_{alpha}.png'}")
 
-# ============================================================
-# ПУНКТ 6: Линейная модель (n=1) для прогнозирования (m=5)
-# ============================================================
-print("\n" + "=" * 60)
-print("ПУНКТ 6. Линейная модель (n=1) для прогнозирования с m=5")
-print("=" * 60)
+
+
+
+
+print("Линейная модель (n=1) для прогнозирования с m=5")
+
 print("  Модель: x_hat_{t+m} = A0(t) + m·A1(t)")
 print("  При m=5: x_hat_{t+5} = A0(t) + 5·A1(t)")
 
@@ -375,7 +345,6 @@ for alpha in alpha_values:
         A1_coef[i] = (alpha / beta_val) * (S1[i] - S2[i])
 
     # Прогнозы для m=5: x_hat_{t+5} = A0(t) + 5·A1(t)
-    # Можно сделать прогноз для t = 1..N-5 (чтобы было с чем сравнивать)
     m = 5
     origins = []  # моменты t, для которых делаем прогноз
     targets = []  # моменты t+m, на которые прогнозируем
@@ -414,23 +383,20 @@ for alpha in alpha_values:
         'origins': origins, 'targets': targets
     }
 
-    print(f"    Количество прогнозов: {n_forecasts}")
-    print(f"    Дисперсия ошибки: s² = {var_error_m5:.4f}")
-    print(f"    Прогноз на 35-ю неделю (из t=30, m=5): x_hat_35 = {future_pred_m5:.2f}")
+    print(f"Количество прогнозов: {n_forecasts}")
+    print(f"Дисперсия ошибки: s² = {var_error_m5:.4f}")
+    print(f"Прогноз на 35-ю неделю (из t=30, m=5): x_hat_35 = {future_pred_m5:.2f}")
 
-    # Таблица результатов (первые 10 прогнозов)
-    print("\n    Таблица результатов (первые 10 прогнозов):")
-    print("    t (исходная)   t+m (целевая)   x_target   x_hat_target   error")
+    print("\nаблица результатов (первые 10 прогнозов):")
+    print("t (исходная)   t+m (целевая)   x_target   x_hat_target   error")
     for k in range(min(10, n_forecasts)):
         print(
             f"    {origins[k]:4d}          {targets[k]:4d}        {actual_m5[k]:8.2f}   {pred_m5[k]:10.2f}   {error_m5[k]:8.2f}")
 
-    # Сохранение таблицы
     np.savetxt(out_dir / f'linear_m5_alpha_{alpha}_results.csv',
                np.column_stack([origins, targets, actual_m5, pred_m5, error_m5]),
                delimiter=',', header='origin_week,target_week,actual,forecast,error', comments='')
 
-    # График
     plt.figure(figsize=(12, 6))
     plt.plot(weeks, X, 'b-o', label='Фактические данные x(t)', markersize=4, linewidth=1.5)
     plt.plot(targets, pred_m5, 'g--^', label=f'Прогноз x_hat_t, m=5, α={alpha}', markersize=4, linewidth=1.5)
@@ -443,22 +409,18 @@ for alpha in alpha_values:
     plt.tight_layout()
     plt.savefig(out_dir / f'06_linear_m5_alpha_{alpha}.png', dpi=150)
     plt.show()
-    print(f"    График сохранен: {out_dir / f'06_linear_m5_alpha_{alpha}.png'}")
 
-# ============================================================
-# ПУНКТ 7: Рекомендация по выбору модели
-# ============================================================
-print("\n" + "=" * 60)
-print("ПУНКТ 7. Рекомендация по выбору модели")
-print("=" * 60)
 
-# Анализ разностей по алгоритму из раздела "Выбор модели"
+#Рекомендация по выбору модели
+
+print("Рекомендация по выбору модели")
+
 print("\n  Анализ разностей:")
 
 # Разности первого порядка: Δx(t) = x_{t+1} - x_t
 diff1 = np.diff(X)
 mean_diff1 = np.mean(diff1)
-print(f"    Среднее разностей первого порядка: Δx̄ = {mean_diff1:.2f}")
+print(f"Среднее разностей первого порядка: Δx̄ = {mean_diff1:.2f}")
 
 # Разности второго порядка: Δ²x(t) = Δx(t+1) - Δx(t)
 diff2 = np.diff(diff1)
@@ -592,14 +554,14 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(out_dir / '07_differences_analysis.png', dpi=150)
 plt.show()
-print(f"  График сохранен: {out_dir / '07_differences_analysis.png'}")
 
-# ============================================================
+
+
 # Сводная таблица результатов
-# ============================================================
-print("\n" + "=" * 60)
-print("СВОДНАЯ ТАБЛИЦА РЕЗУЛЬТАТОВ")
-print("=" * 60)
+
+
+print("Сводная таблица результатов")
+
 
 print("\n  Постоянная модель (n=0):")
 print(
@@ -618,7 +580,3 @@ print(
     f"    α = 0.1: дисперсия ошибки = {linear_m5_results[0.1]['var_error']:.4f}, прогноз на 35 неделю = {linear_m5_results[0.1]['future_pred']:.2f}")
 print(
     f"    α = 0.3: дисперсия ошибки = {linear_m5_results[0.3]['var_error']:.4f}, прогноз на 35 неделю = {linear_m5_results[0.3]['future_pred']:.2f}")
-
-print("\n" + "=" * 60)
-print(f"Все графики сохранены в директории: {out_dir}")
-print("=" * 60)
