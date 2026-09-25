@@ -157,13 +157,8 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(out_dir / '03_linear_regression_init.png', dpi=150)
 plt.show()
-print(f"  График сохранен: {out_dir / '03_linear_regression_init.png'}")
-
-
 
 print("Многократное экспоненциальное сглаживание")
-
-
 
 smooth_results = {}
 
@@ -501,10 +496,9 @@ else:
 print(f"    Эмпирически лучшая модель: {empirical_best_model}")
 print(f"    {empirical_comparison}")
 
-# Итоговый вывод
-print("\n" + "=" * 60)
+
 print("ИТОГОВЫЙ ВЫВОД")
-print("=" * 60)
+
 
 if recommended_order == 0:
     if empirical_best_model == "линейная модель":
